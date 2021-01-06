@@ -44,12 +44,12 @@ def append_timeseries(fname, tseries):
         tseries[ID].append(t)
 
 def write_tracer_timeseries(group, tseries):
-    g.create_dataset('x', data=tseries.x)
-    g.create_dataset('y', data=tseries.y)
-    g.create_dataset('vx', data=tseries.vx)
-    g.create_dataset('vy', data=tseries.vy)
-    g.create_dataset('density', data=tseries.density)
-    g.create_dataset('pressure', data=tseries.pressure)
+    group.create_dataset('x', data=tseries.x)
+    group.create_dataset('y', data=tseries.y)
+    group.create_dataset('vx', data=tseries.vx)
+    group.create_dataset('vy', data=tseries.vy)
+    group.create_dataset('density', data=tseries.density)
+    group.create_dataset('pressure', data=tseries.pressure)
 
 if __name__ == '__main__':
 
