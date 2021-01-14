@@ -1,7 +1,7 @@
 import sys
 import h5py 
 import numpy as np 
-
+from tracers import TracerData_t
 
 class TracerTimeseries:
     def __init__(self, ID):
@@ -23,7 +23,6 @@ class TracerTimeseries:
 
 
 
-
 def unpack_tracer_data(tracer):
     data = 0
     velo = 1
@@ -41,10 +40,7 @@ def append_timeseries(fname, tseries):
     tracer_data = np.column_stack(unpack(h5f['tracers'][...]))
     for t in tracer_data:
         ID = int(t[0])
-        try:
-            tseries[ID].append(t)
-        except IndexError:
-            print("ID {} out of bounds for array of length {}".format(ID, len(tseries)))
+        tseries[ID].append(t)
 
 def write_tracer_timeseries(group, tseries):
     group.create_dataset('x', data=tseries.x)
@@ -57,8 +53,8 @@ def write_tracer_timeseries(group, tseries):
 if __name__ == '__main__':
 
     files    = sys.argv[1:]
-    ntracers = h5py.File(files[0], 'r')['tracers'][...].size
-    tseries  = [TracerTimeseries(i) for i in range(ntracers)]
+    ntracers = np.max(TracerData_t(files[0]).ids()) + 1
+    tseries  = [TracerTimeseries(i) for i in range(int(ntracers))]
     time     = []
 
     for f in files:
