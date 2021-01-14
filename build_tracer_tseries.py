@@ -41,7 +41,10 @@ def append_timeseries(fname, tseries):
     tracer_data = np.column_stack(unpack(h5f['tracers'][...]))
     for t in tracer_data:
         ID = int(t[0])
-        tseries[ID].append(t)
+        try:
+            tseries[ID].append(t)
+        except IndexError:
+            print("ID {} out of bounds for array of length {}".format(ID, len(tseries)))
 
 def write_tracer_timeseries(group, tseries):
     group.create_dataset('x', data=tseries.x)
