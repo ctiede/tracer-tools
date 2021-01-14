@@ -3,7 +3,6 @@ import sys
 import h5py 
 import numpy as np
 
-sys.path.insert(1, '~/MacFadyen/Clemson_Cal/tracer_tools')
 from tracers import TracerData_t
 
 
@@ -13,7 +12,7 @@ def tracers_in_outer_disk(fname):
     r    = data.radii()
     return ids[r > 2.5]
 
-def find_accreted_tracers(f_start, f_finish, id_list):
+def find_accreted_tracers(f_start, f_finish):
     id_list  = tracers_in_outer_disk(f_start)
     data     = TracerData_t(f_finish)
     ids      = data.ids()
@@ -27,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('finish', help='file to end search for accreted tracers')
     args = parser.parse_args()
 
-    ids = find_accreted_tracers(args.start, args.finish, ids)
+    ids = find_accreted_tracers(args.start, args.finish)
 
     print("Found {} accreted tracers".format(len(ids)))
     np.savetxt('accreted_traceres.txt', ids.astype(int))
