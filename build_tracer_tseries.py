@@ -1,6 +1,7 @@
 import sys
 import h5py 
 import numpy as np 
+from argparse import ArgumentParser
 from tracers import TracerData_t
 
 class TracerTimeseries:
@@ -21,26 +22,20 @@ class TracerTimeseries:
         self.density.append( new[5])
         self.pressure.append(new[6])
 
+def select_ids(fname, id_file=None):
+    if id_file is None:
+        return TracerData_t(fname).ids()
+    else:
+        return np.loadtxt(id_file)
 
-
-def unpack_tracer_data(tracer):
-    data = 0
-    velo = 1
-    return (tracer[data][0], # id       (0)
-            tracer[data][1], # x        (1)
-            tracer[data][2], # y        (2)
-            tracer[velo][0], # vx       (3)
-            tracer[velo][1], # vy       (4)
-            tracer[2],       # density  (5)
-            tracer[3])       # pressure (6)
-
-def append_timeseries(fname, tseries):
-    h5f     = h5py.File(fname, 'r')
-    unpack  = np.vectorize(lambda t: unpack_tracer_data(t))
-    tracer_data = np.column_stack(unpack(h5f['tracers'][...]))
+def append_timeseries(fname, ids, tseries):
+    tracer_data = TracerData_t(fname).stack()
     for t in tracer_data:
         ID = int(t[0])
-        tseries[ID].append(t)
+        if ID not in ids:
+            continue
+        ix, = np.where(ids == ID)[0]
+        tseries[ix].append(t)
 
 def write_tracer_timeseries(group, tseries):
     group.create_dataset('x', data=tseries.x)
@@ -52,15 +47,21 @@ def write_tracer_timeseries(group, tseries):
 
 if __name__ == '__main__':
 
-    files    = sys.argv[1:]
-    ntracers = np.max(TracerData_t(files[0]).ids()) + 1
-    tseries  = [TracerTimeseries(i) for i in range(int(ntracers))]
-    time     = []
+    # files   = sys.argv[1:]
+    parser = ArgumentParser()
+    parser.add_argument('files', nargs='+')
+    parser.add_argument('--id-file', default=None)
+    args = parser.parse_args()
 
-    for f in files:
+    ids     = select_ids(args.files[0], id_file=args.id_file)
+    print(ids)
+    tseries = np.array([TracerTimeseries(i) for i in ids])
+    time    = []
+
+    for f in args.files:
         print(f)
         time.append(h5py.File(f, 'r')['time'][...])
-        append_timeseries(f, tseries)
+        append_timeseries(f, ids, tseries)
 
     fname = 'tracer_tseries.h5'
     h5f = h5py.File(fname, 'w')
