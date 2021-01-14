@@ -28,4 +28,4 @@ if __name__ == '__main__':
     ids = find_accreted_tracers(args.start, args.finish)
 
     print("Found {} accreted tracers".format(len(ids)))
-    np.savetxt('accreted_traceres.txt', ids.astype(int))
+    np.savetxt('accreted_tracers.txt', ids.astype(int))
