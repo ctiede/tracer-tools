@@ -54,7 +54,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ids     = select_ids(args.files[0], id_file=args.id_file)
-    print(ids)
     tseries = np.array([TracerTimeseries(i) for i in ids])
     time    = []
 
@@ -69,7 +68,7 @@ if __name__ == '__main__':
     print("   Saving {}...".format(fname))
 
     for t in tseries:
-        g = h5f.create_group("{}".format(t.id))
+        g = h5f.create_group("{:d}".format(int(t.id)))
         write_tracer_timeseries(g, t)
 
     h5f.close()
