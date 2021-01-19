@@ -25,6 +25,12 @@ def find_tracers_with_spam(file, range):
     j    = data.specific_angular_momentum()
     return ids[(range[0] < j) & (j < range[1])]
 
+def find_tracers_with_radius(file, range):
+    data = TracerData_t(file)
+    ids  = data.ids()
+    r    = data.radii()
+    return ids[(range[0] < r) & (r < range[1])]
+
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('file', 
@@ -32,7 +38,9 @@ if __name__ == '__main__':
     parser.add_argument('--accreted-by', '-ac', default=None, 
         help='File to find tracers that accreted since `init-file`')
     parser.add_argument('--specific-ang-mom-in', nargs=2, type=float, default=None, 
-        help='Find tracers with specific ang mom between [f, f]')
+        help='Find tracers with specific ang mom between [j0, j1]')
+    parser.add_argument('--radii-in', nargs=2, type=float, default=None,
+        help='Find tracers with radii between [r0, r1]')
     args = parser.parse_args()
     print(args)
 
@@ -44,6 +52,11 @@ if __name__ == '__main__':
     if args.specific_ang_mom_in is not None:
         ids = find_tracers_with_spam(args.file, args.specific_ang_mom_in)
         print("Found {} tracers with specific ang mom between {}".format(len(ids), args.specific_ang_mom_in))
-        np.savetxt('tracers_specific_ang_mom.txt', ids.astype(int))
+        # np.savetxt('tracers_specific_ang_mom.txt', ids.astype(int))
+
+    if args.radii_in is not None:
+        ids = find_tracers_with_radius(args.file, args.radii_in)
+        print("Found {} tracers with radius between {}".format(len(ids), args.specific_ang_mom_in))
+        # np.savetxt('tracers_radius.txt', ids.astype(int))
 
 
