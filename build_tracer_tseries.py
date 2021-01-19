@@ -53,22 +53,27 @@ if __name__ == '__main__':
     parser.add_argument('--id-file', default=None)
     args = parser.parse_args()
 
+    # ===============================================================
     ids     = select_ids(args.files[0], id_file=args.id_file)
     tseries = np.array([TracerTimeseries(i) for i in ids])
     time    = []
 
+    # ===============================================================
     for f in args.files:
         print(f)
         time.append(h5py.File(f, 'r')['time'][...])
         append_timeseries(f, ids, tseries)
 
+    # ===============================================================
     fname = 'tracer_tseries.h5'
     h5f = h5py.File(fname, 'w')
     h5f.create_dataset('time', data=time)
     print("   Saving {}...".format(fname))
 
+    # ===============================================================
     for t in tseries:
         g = h5f.create_group("{:d}".format(int(t.id)))
         write_tracer_timeseries(g, t)
 
+    # ===============================================================
     h5f.close()
