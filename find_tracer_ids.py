@@ -47,16 +47,16 @@ if __name__ == '__main__':
     if args.accreted_by is not None:
         ids = find_accreted_tracers(args.file, args.accreted_by)
         print("Found {} accreted tracers".format(len(ids)))
-        np.savetxt('accreted_tracers.txt', ids.astype(int))
+        np.savetxt('accreted_tracers.txt', ids.astype(int), fmt='%i')
 
     if args.specific_ang_mom_in is not None:
         ids = find_tracers_with_spam(args.file, args.specific_ang_mom_in)
         print("Found {} tracers with specific ang mom between {}".format(len(ids), args.specific_ang_mom_in))
-        # np.savetxt('tracers_specific_ang_mom.txt', ids.astype(int))
+        # np.savetxt('tracers_specific_ang_mom.txt', ids.astype(int), fmt='%i')
 
     if args.radii_in is not None:
         ids = find_tracers_with_radius(args.file, args.radii_in)
         print("Found {} tracers with radius between {}".format(len(ids), args.specific_ang_mom_in))
-        # np.savetxt('tracers_radius.txt', ids.astype(int))
+        # np.savetxt('tracers_radius.txt', ids.astype(int), fmt='%i')
 
 
