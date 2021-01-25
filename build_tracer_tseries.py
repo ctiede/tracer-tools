@@ -1,5 +1,6 @@
 import sys
 import h5py 
+import time
 import numpy as np 
 from argparse import ArgumentParser
 from tracers import TracerData_t
@@ -56,18 +57,20 @@ if __name__ == '__main__':
     # ===============================================================
     ids     = select_ids(args.files[0], id_file=args.id_file)
     tseries = np.array([TracerTimeseries(i) for i in ids])
-    time    = []
+    ts      = []
 
     # ===============================================================
     for f in args.files:
-        print(f)
-        time.append(h5py.File(f, 'r')['time'][...])
+        start = time.time()
+        ts.append(h5py.File(f, 'r')['time'][...])
         append_timeseries(f, ids, tseries)
+        end = time.time()
+        print(f, "[{:.2f} s]".format(end - start))
 
     # ===============================================================
     fname = 'tracer_tseries.h5'
     h5f = h5py.File(fname, 'w')
-    h5f.create_dataset('time', data=time)
+    h5f.create_dataset('time', data=ts)
     print("   Saving {}...".format(fname))
 
     # ===============================================================
