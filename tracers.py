@@ -1,7 +1,6 @@
 import h5py
 import numpy as np
 
-
 def unpack_tracer_data(tracer):
     data = 0
     velo = 1
