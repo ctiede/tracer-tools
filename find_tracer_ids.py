@@ -35,10 +35,10 @@ def find_switched_minidisk(f_start, f_finish):
     rh     = 0.4
     start  = TracerData_t(f_start)
     finish = TracerData_t(f_finish)
-    start_on_bh1  = start.ids()[start.distance_component1() < rh]
-    start_on_bh2  = start.ids()[start.distance_component2() < rh]
-    finish_on_bh1 = finish.ids()[finish.distance_component1() < rh]
-    finish_on_bh2 = finish.ids()[finish.distance_component2() < rh]
+    start_on_bh1  = start.ids()[start.distance_to_component_1() < rh]
+    start_on_bh2  = start.ids()[start.distance_to_component_2() < rh]
+    finish_on_bh1 = finish.ids()[finish.distance_to_component_1() < rh]
+    finish_on_bh2 = finish.ids()[finish.distance_to_component_2() < rh]
     switch1 = np.intersect1d(start_on_bh1, finish_on_bh2)
     switch2 = np.intersect1d(start_on_bh2, finish_on_bh1)
     return np.concatenate([switch1, switch2])

@@ -58,7 +58,7 @@ class TracerData_t:
         v = np.column_stack((vx, vy))
         return np.cross(r, v)
 
-    def distance_component_1(self):
+    def distance_to_component_1(self):
         (ID, x, y, vx, vy, rho, p) = self.unpack()
         Omega = 1.0
         time  = self.time()
@@ -66,7 +66,7 @@ class TracerData_t:
         yh = 0.5 * np.sin(Omega * time)
         return np.sqrt((x - xh)**2 + (y - yh)**2)
 
-    def distance_component_2(self):
+    def distance_to_component_2(self):
         (ID, x, y, vx, vy, rho, p) = self.unpack()
         Omega = 1.0
         time  = self.time()
