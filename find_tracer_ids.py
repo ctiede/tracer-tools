@@ -31,6 +31,19 @@ def find_tracers_with_radius(file, range):
     r    = data.radii()
     return ids[(range[0] < r) & (r < range[1])]
 
+def find_switched_minidisk(f_start, f_finish):
+    rh     = 0.4
+    start  = TracerData_t(f_start)
+    finish = TracerData_t(f_finish)
+    start_on_bh1  = start.ids()[start.distance_component1() < rh]
+    start_on_bh2  = start.ids()[start.distance_component2() < rh]
+    finish_on_bh1 = finish.ids()[finish.distance_component1() < rh]
+    finish_on_bh2 = finish.ids()[finish.distance_component2() < rh]
+    switch1 = np.intersect1d(start_on_bh1, finish_on_bh2)
+    switch2 = np.intersect1d(start_on_bh2, finish_on_bh1)
+    return np.concatenate([switch1, switch2])
+
+
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('file', 
@@ -41,6 +54,8 @@ if __name__ == '__main__':
         help='Find tracers with specific ang mom between [j0, j1]')
     parser.add_argument('--radii-in', nargs=2, type=float, default=None,
         help='Find tracers with radii between [r0, r1]')
+    parser.add_argument('--switched-mini-by', default=None,
+        help='File to find tracers that switched minidisks since `init-file`')
     args = parser.parse_args()
     print(args)
 
@@ -58,3 +73,8 @@ if __name__ == '__main__':
         ids = find_tracers_with_radius(args.file, args.radii_in)
         print("Found {} tracers with radius between {}".format(len(ids), args.radii_in))
         np.savetxt('tracers_radius.txt', ids.astype(int), fmt='%i')
+
+    if args.switched_mini_by is not None:
+        ids = find_switched_minidisk(args.file, args.switched_mini_by)
+        print("Found {} tracers that swithced minidisks".format(len(ids)))
+        np.savetxt('tracers_switched.txt', ids.astype(int), fmt='%i')

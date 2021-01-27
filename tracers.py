@@ -17,6 +17,9 @@ class TracerData_t:
     def __init__(self, fname):
         self.file = fname
 
+    def time(self):
+        return h5py.File(self.file, 'r')['time'][...]
+
     def unpack(self):
         h5f    = h5py.File(self.file, 'r')
         unpack = np.vectorize(lambda t: unpack_tracer_data(t))
@@ -54,5 +57,21 @@ class TracerData_t:
         r = np.column_stack((x , y))
         v = np.column_stack((vx, vy))
         return np.cross(r, v)
+
+    def distance_component_1(self):
+        (ID, x, y, vx, vy, rho, p) = self.unpack()
+        Omega = 1.0
+        time  = self.time()
+        xh = 0.5 * np.cos(Omega * time)
+        yh = 0.5 * np.sin(Omega * time)
+        return np.sqrt((x - xh)**2 + (y - yh)**2)
+
+    def distance_component_2(self):
+        (ID, x, y, vx, vy, rho, p) = self.unpack()
+        Omega = 1.0
+        time  = self.time()
+        xh = - 0.5 * np.cos(Omega * time)
+        yh = - 0.5 * np.sin(Omega * time)
+        return np.sqrt((x - xh)**2 + (y - yh)**2)
 
 
