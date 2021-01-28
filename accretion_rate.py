@@ -25,12 +25,15 @@ if __name__ == '__main__':
     n_accr = []
     n_disk = []
     for f in args.files:
+        print(f)
         (t, na, nd) = split_tracers(f)
         n_accr.append(na)
         n_disk.append(nd)
         time.append(t)
 
-    np.save('tracer_counts.npy', np.column_stack([time, n_accr, n_disk]))
+    fname = 'tracer_counts.npy'
+    print('   Saving {}...'.format(fname))
+    np.save(fname, np.column_stack([time, n_accr, n_disk]))
     # n_accr = np.array(n_accr)
     # n_disk = np.array(n_disk)
     # time   = np.array(time)
