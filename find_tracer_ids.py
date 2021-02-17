@@ -43,6 +43,18 @@ def find_switched_minidisk(f_start, f_finish):
     switch2 = np.intersect1d(start_on_bh2, finish_on_bh1)
     return np.concatenate([switch1, switch2])
 
+def find_close_approach(files, rs=1.0, dt=1.0):
+    ids = []
+    initial = TracerData_t(files[0])
+    cbd_ids = initial.ids()[initial.radii() > 1.5]
+    for f in files[1:]:
+        print(f)
+        t = TracerData_t(f)
+        close_approach = t.radii() < rs
+        cross_ids = np.intersect1d(t.ids()[close_approach], cbd_ids)
+        ids.append(cross_ids)
+    return np.concatenate(ids)
+
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -56,6 +68,8 @@ if __name__ == '__main__':
         help='Find tracers with radii between [r0, r1]')
     parser.add_argument('--switched-mini-by', default=None,
         help='File to find tracers that switched minidisks since `init-file`')
+    parser.add_argument('--close-approach-in', default=None, nargs='+',
+        help='Set of files to search for close approaches to the binary')
     args = parser.parse_args()
     print(args)
 
@@ -78,3 +92,8 @@ if __name__ == '__main__':
         ids = find_switched_minidisk(args.file, args.switched_mini_by)
         print("Found {} tracers that swithced minidisks".format(len(ids)))
         np.savetxt('tracers_switched.txt', ids.astype(int), fmt='%i')
+
+    if args.close_approach_in is not None:
+        ids = find_close_approach(args.close_approach_in.insert(0, args.file), rs=0.75)
+        print("Found {} tracers that made a close approach".format(len(ids)))
+        np.savetxt('close_approach_ids.txt', ids.astype(int), fmt='%i')
