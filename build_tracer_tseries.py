@@ -52,7 +52,8 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('files', nargs='+')
     parser.add_argument('--id-file', default=None)
-    args = parser.parse_args()
+    parser.add_argument('--out-file', default='tracer_tseries.h5')
+    args = parser.parse_args()  
 
     # ===============================================================
     ids     = select_ids(args.files[0], id_file=args.id_file)
@@ -68,7 +69,7 @@ if __name__ == '__main__':
         print(f, "[{:.2f} s]".format(end - start))
 
     # ===============================================================
-    fname = 'tracer_tseries.h5'
+    fname = args.out_file
     h5f = h5py.File(fname, 'w')
     h5f.create_dataset('time', data=ts)
     print("   Saving {}...".format(fname))
