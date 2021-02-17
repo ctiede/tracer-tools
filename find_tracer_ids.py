@@ -43,9 +43,10 @@ def find_switched_minidisk(f_start, f_finish):
     switch2 = np.intersect1d(start_on_bh2, finish_on_bh1)
     return np.concatenate([switch1, switch2])
 
-def find_close_approach(files, rs=1.0, dt=1.0):
+def find_close_approach(f0, files, rs=1.0, dt=1.0):
+    print(files)
     ids = []
-    initial = TracerData_t(files[0])
+    initial = TracerData_t(f0)
     cbd_ids = initial.ids()[initial.radii() > 1.5]
     for f in files[1:]:
         print(f)
@@ -94,6 +95,6 @@ if __name__ == '__main__':
         np.savetxt('tracers_switched.txt', ids.astype(int), fmt='%i')
 
     if args.close_approach_in is not None:
-        ids = find_close_approach(args.close_approach_in.insert(0, args.file), rs=0.75)
+        ids = find_close_approach(args.file, args.close_approach_in, rs=0.75)
         print("Found {} tracers that made a close approach".format(len(ids)))
         np.savetxt('close_approach_ids.txt', ids.astype(int), fmt='%i')
