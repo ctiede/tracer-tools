@@ -54,7 +54,7 @@ def find_close_approach(f0, files, rs=1.0, dt=1.0):
         close_approach = t.radii() < rs
         cross_ids = np.intersect1d(t.ids()[close_approach], cbd_ids)
         ids.append(cross_ids)
-    return np.concatenate(ids)
+    return np.unique(np.concatenate(ids))
 
 
 if __name__ == '__main__':
