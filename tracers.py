@@ -1,28 +1,22 @@
 import h5py
 import numpy as np
 
-def unpack_tracer_data(tracer):
-    data = 0
-    velo = 1
-    return (tracer[data][0], # id       (0)
-            tracer[data][1], # x        (1)
-            tracer[data][2], # y        (2)
-            tracer[velo][0], # vx       (3)
-            tracer[velo][1], # vy       (4)
-            tracer[2],       # density  (5)
-            tracer[3])       # pressure (6)
-
 
 class TracerData_t:
-    def __init__(self, fname):
-        self.file = fname
+    def __init__(self, fname, weights=False):
+        self.file    = fname
+        self.weights = weights
 
     def time(self):
         return h5py.File(self.file, 'r')['time'][...]
 
     def unpack(self):
-        h5f    = h5py.File(self.file, 'r')
-        unpack = np.vectorize(lambda t: unpack_tracer_data(t))
+        h5f = h5py.File(self.file, 'r')
+        try:
+            unpack = np.vectorize(lambda t: unpack_tracer_data(t))
+        except:
+            print("Tracer file appears to not have weights")
+            unpack = np.vectorize(lambda t: unpack_tracer_data_no_weights(t))
         return unpack(h5f['tracers'][...])
 
     def stack(self):
@@ -43,8 +37,19 @@ class TracerData_t:
         (ID, x, y, vx, vy, rho, p) = self.unpack()
         return np.sqrt(vx * vx + vy * vy)
 
+    def radial_velocities(self):
+        (ID, x, y, vx, vy, rho, p) = self.unpack()
+        r = self.radii()
+        return (x * vx + y * vy) / r
+
     def densities(self):
         return self.unpack()[5]
+
+    def weights(self):
+        try: 
+            self.unpack()[7]
+        except:
+            print("Provided tracer file doesn't have weights")
 
     def angular_momentum_density(self):
         (ID, x, y, vx, vy, rho, p) = self.unpack()
@@ -75,3 +80,26 @@ class TracerData_t:
         return np.sqrt((x - xh)**2 + (y - yh)**2)
 
 
+# =============================================================================
+def unpack_tracer_data(tracer):
+    dat = 0
+    vel = 1
+    return (tracer[dat][0], # id       (0)
+            tracer[dat][1], # x        (1)
+            tracer[dat][2], # y        (2)
+            tracer[vel][0], # vx       (3)
+            tracer[vel][1], # vy       (4)
+            tracer[2],      # density  (5)
+            tracer[3],      # pressure (6)
+            tracer[dat][3]) # weight   (7)
+
+def unpack_tracer_data_no_weights(tracer):
+    dat = 0
+    vel = 1
+    return (tracer[dat][0], # id       (0)
+            tracer[dat][1], # x        (1)
+            tracer[dat][2], # y        (2)
+            tracer[vel][0], # vx       (3)
+            tracer[vel][1], # vy       (4)
+            tracer[2],      # density  (5)
+            tracer[3])      # pressure (6)
