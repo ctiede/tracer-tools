@@ -84,6 +84,27 @@ def plot_block_tracers(ax, file, q, corot=False, **kwargs):
         spam = specific_angular_momentum(x, y, vx, vy)
         ax.scatter(x, y, s=5.0, c=spam, cmap=cmap, vmin=-2.5, vmax=2.5)
 
+    elif q is 'streams':
+        r   = np.sqrt( x *  x +  y *  y)
+        c   = jacobi_constant(x, y, vx, vy, time, corot=corot)
+        d1  = TracerData_t(file).distance_to_component_1()
+        d2  = TracerData_t(file).distance_to_component_2()
+        rh  = 0.25        
+        ck  = 3.64
+        eps = 0.1
+        # stream = np.where((ck - c > eps * ck)&(d2 > 2 * rh)&(d1 < 6 * rh))
+        stream = np.where((ck - c > eps * ck)&(x > -0.5)&(y < 1.07)&(d2 > rh)&(d1 > rh))
+        # stream = np.where((ck - c > eps * ck))
+        ax.scatter(x[stream], y[stream], s=5.0, c='r')
+        ax.scatter(x, y, s=3.0, c='grey', alpha=0.1)
+
+        phi = np.arctan2(y, x)
+
+        print(len(x[stream]), np.sum(j[stream]) / len(x[stream]))
+        trunc = plt.Circle((0.0, 0.0), 1.07, fill=False, color='lightblue', lw=0.75, label=r'$r_{\rm trunc}$')
+        ax.add_artist(trunc)
+        # ax.legend(loc='best')
+
     else:
         print("Enter valid quantity for plotting")
 
@@ -109,7 +130,7 @@ def plot_tracers(fname, q='density', domain_radius=10.0, corot=False, binary=Fal
     
     print('Saving ' + filename)
     plt.savefig(filename)
-    plt.show()
+    # plt.show()
     plt.close()
 
 
@@ -128,7 +149,7 @@ if __name__ == '__main__':
     binary = args.show_binary
     if args.all_tracers is True:
         for f in args.files:
-            plot_tracers(f, q='specific_angular_momentum', domain_radius=radius, corot=corot, binary=binary)
+            plot_tracers(f, q='streams', domain_radius=radius, corot=corot, binary=binary)
 
     if args.other is True:
         #todo
