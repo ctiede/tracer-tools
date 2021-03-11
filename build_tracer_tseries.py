@@ -24,9 +24,9 @@ if __name__ == '__main__':
     parser.add_argument('--out-file', default='tracer_tseries.h5')
     args = parser.parse_args()  
 
-    times = []
     n_tracers_max = int(np.max(TracerData_t(args.files[0]).ids()) + 1)
     tracer_series = np.dstack([get_tracer_data(f, n_tracers_max) for f in args.files])
+    times = np.array([h5py.File(f, 'r')['time'][()] for f in args.files])
 
     fname = args.out_file
     print("   Saving {}...".format(fname))
