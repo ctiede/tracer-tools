@@ -40,12 +40,14 @@ def make_figure_vr_dispersion_tracers(fname, savefile='vr_dispersion.h5'):
     prof = h5f.create_group('profiles')
     disp = h5f.create_group('dispersion')
 
+    print('Loading data...')
     r  = get_tracer_tseries(fname, 'r')
     vr = get_tracer_tseries(fname, 'vr')
     rs = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
     prof.create_dataset('annuli', data=rs)
 
     cs = mpl.cm.cubehelix(np.linspace(0, 1, len(rs) + 1))
+    print('Building histograms...')
     for i, (a, b) in enumerate(zip(rs[:-1], rs[1:])):
         ann = np.where((a < r) & (r < b))
         lab = r'{} $<$ r $<$ {}'.format(a, b)
@@ -63,6 +65,7 @@ def make_figure_vr_dispersion_tracers(fname, savefile='vr_dispersion.h5'):
     ax0.axvline(0.0, color='grey', alpha=0.7, ls='--', lw=0.75)
     ax0.legend(loc='upper left', frameon=False)
     
+    print('Calculating dispersion curve...')
     dsp  = []
     rdsp = np.arange(1.5, 8.0, 0.1)
     rc  = [np.mean([b, b + 0.1]) for b in rdsp]
@@ -89,6 +92,7 @@ if __name__ == '__main__':
     fig = make_figure_vr_dispersion_tracers(file)
     # vr_dispersion_fluid(chkpt, range=[1,8], dr=0.5)
     if args.hardcopy is True:
+        print('   Saving...')
         plt.savefig('tracer_vr_dispersion.pdf', dpi=400, bbox_inches='tight', pad_inches=0.05)
     else:
         plt.show()
