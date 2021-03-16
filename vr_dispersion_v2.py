@@ -43,7 +43,8 @@ def make_figure_vr_dispersion_tracers(fname, savefile='vr_dispersion.h5'):
     print('Loading data...')
     r  = get_tracer_tseries(fname, 'r')
     vr = get_tracer_tseries(fname, 'vr')
-    rs = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    # rs = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    rs = np.arange(1.0, 16.0, 1.0)
     prof.create_dataset('annuli', data=rs)
 
     cs = mpl.cm.cubehelix(np.linspace(0, 1, len(rs) + 1))
@@ -67,7 +68,7 @@ def make_figure_vr_dispersion_tracers(fname, savefile='vr_dispersion.h5'):
     
     print('Calculating dispersion curve...')
     dsp  = []
-    rdsp = np.arange(1.5, 8.0, 0.1)
+    rdsp = np.arange(1.5, 15.1, 0.1)
     rc  = [np.mean([b, b + 0.1]) for b in rdsp]
     disp.create_dataset('radii', data=rc)
     for b in rdsp:
