@@ -2,6 +2,7 @@ import sys
 import h5py 
 import numpy as np 
 import matplotlib as mpl 
+import matplotlib.pyplot as plt 
 from argparse import ArgumentParser
 from tracers import TracerData_t
 from figures import get_tracer_tseries, get_dataset
@@ -87,11 +88,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     file = args.file
-    if args.hardcopy is True:
-        mpl.use('Agg')
-    import matplotlib.pyplot as plt 
-    
-
     fs.configure_matplotlib()
     fig = make_figure_vr_dispersion_tracers(file)
     # vr_dispersion_fluid(chkpt, range=[1,8], dr=0.5)
