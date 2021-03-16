@@ -88,9 +88,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     file = args.file
+    if args.hardcopy is True:
+        mpl.use('Agg')
+
     fs.configure_matplotlib()
     fig = make_figure_vr_dispersion_tracers(file)
     # vr_dispersion_fluid(chkpt, range=[1,8], dr=0.5)
+    
     if args.hardcopy is True:
         print('   Saving...')
         plt.savefig('tracer_vr_dispersion.pdf', dpi=400, bbox_inches='tight', pad_inches=0.05)
