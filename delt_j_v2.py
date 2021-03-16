@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from tracers import TracerData_t
 from figures import get_tracer_tseries
+from argparse import ArgumentParser
 import figures as fs
 
 
@@ -18,6 +19,7 @@ def gausspace(x0, xf, n, mu=0.0, sigma=1.0, w=1.0):
 
 
 def make_figure_djdt_tracers(fname, dt=0.1, nbins=25, toi=0.1):
+    h5f  = h5py.File('delta_j.h5', 'w')
     fig, ax = plt.subplots(1, figsize=[fs.column_width, fs.column_width * fs.gold_ratio])
     plt.subplots_adjust(top=0.99, bottom=0.18, left=0.15, right=0.99)
     bins = gausspace(-7, 6, nbins, sigma=2, mu=0.0, w=0.7)
@@ -25,6 +27,9 @@ def make_figure_djdt_tracers(fname, dt=0.1, nbins=25, toi=0.1):
     tof = int(1 / toi)
     rs = np.array([1.0, 2.5, 4.5, 10.0])
     cs = mpl.cm.magma(np.linspace(0, 0.9, len(rs) - 1))
+    h5f.create_dataset('radii', data=rs)
+    
+    print('Loading {}...'.format(fname))
     r  = get_tracer_tseries(fname, 'r')
     j  = get_tracer_tseries(fname, 'j')
     r0 = r[:,:-int(dt*tof)].flatten()
@@ -34,11 +39,15 @@ def make_figure_djdt_tracers(fname, dt=0.1, nbins=25, toi=0.1):
         sze = len(jdot[ann])
         ws  = np.ones(sze) / sze
         lab = r'{:.1f} $<$ r $<$ {:.1f}'.format(a, b)
-        ax.hist(jdot[ann], weights=ws, bins=bins, histtype='step', lw=1.5, color=c, label=lab)
+        n, e, p = ax.hist(jdot[ann], weights=ws, bins=bins, histtype='step', lw=1.5, color=c, label=lab)
+        g = h5f.create_group('{:.1f}:{:.1f}'.format(a, b))
+        g.create_dataset('values', data=n)
+        g.create_dataset('edges' , data=e)
     ax.set_yscale('log')
     ax.set_xlabel(r'Change in specific angular momentum $\partial j / \partial t$')
     ax.set_ylabel('Percent of total')
     ax.legend(loc='upper left')
+    h5f.close()
     return fig
 
 
@@ -49,8 +58,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     file = args.file
+    if args.hardcopy is True:
+        mpl.use('Agg')
+
     fs.configure_matplotlib()
     fig = make_figure_djdt_tracers(file)
-    plt.show()
+    
+    if args.hardcopy is True:
+        print('   Saving...')
+        plt.savefig('tracers_djdt.pdf')
+    else:
+        plt.show()
 
 
