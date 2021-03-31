@@ -69,6 +69,10 @@ def plot_block_tracers(ax, file, q, corot=False, **kwargs):
         cmap = mpl.cm.magma
         ax.scatter(x, y, s=5.0, c=np.log10(rho), cmap=cmap)
 
+    if q is 'pressure':
+        cmap = mpl.gist_heat
+        ax.scatter(x, y, s=5, c=np.log10(p), cmap=cmap)
+
     if q is 'veclocity':
         cmap = mpl.cm.viridis
         ax.scatter(x, y, s=5.0, c=np.sqrt(vx**2 + vy**2))
