@@ -22,17 +22,32 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('files', nargs='+')
     parser.add_argument('--out-file', default='tracer_tseries.h5')
+    parser.add_argument('--tof', default=None, type=int)
     args = parser.parse_args()  
 
-    n_tracers_max = int(np.max(TracerData_t(args.files[0]).ids()) + 1)
-    tracer_series = np.dstack([get_tracer_data(f, n_tracers_max) for f in args.files])
-    times = np.array([h5py.File(f, 'r')['time'][()] for f in args.files])
-
     fname = args.out_file
-    print("   Saving {}...".format(fname))
+    h5f   = h5py.File(fname, 'w')
+    n_tracers_max = int(np.max(TracerData_t(args.files[0]).ids()) + 1)
+    if args.tof is not None:
+        times = []
+        files = [args.file[i:i+args.tof] for i in range(0, len(args.files), args.tof)]
+        for i, fs in enumerate(files):
+            tseries_i = np.dstack([get_tracer_data(f, n_tracers_max) for f in fs])
+            ts = np.array([h5py.File(f, 'r')['time'][()] for f in fs]) 
+            times.append(ts)
+            g = h5f.create_group('{:}'.format(i))
+            g.create_dataset('time', data=ts)
+            g.create_dataset('tseries', data=tseries_i)
+            g.close()
+        h5f.create_dataset(np.concatenate(times))
+        h5f.close()
+    else:
+        tracer_series = np.dstack([get_tracer_data(f, n_tracers_max) for f in args.files])
+        times = np.array([h5py.File(f, 'r')['time'][()] for f in args.files])
+        print("   Saving {}...".format(fname))
+        h5f.create_dataset('time', data=times)
+        h5f.create_dataset('tracer_tseries', data=tracer_series)
+        h5f.close()
 
-    h5f = h5py.File(fname, 'w')
-    h5f.create_dataset('time', data=times)
-    h5f.create_dataset('tracer_tseries', data=tracer_series)
-    h5f.close()
+
     
